@@ -14,7 +14,7 @@
  * ===============================
  * 
  * @author Maurizio Cingolani <mauriziocingolani74@gmail.com>
- * @version 1.0.1
+ * @version 1.0.2
  */
 class CMailChimp extends MailChimp {
 
@@ -47,20 +47,23 @@ class CMailChimp extends MailChimp {
      * <li>email: indirizzo email </li>
      * <li>double_optin: true per richiedere iscrizione per email, false per iscrivere direttamente</li>
      * </li>
+     * In aggiunta ai parametri standard è possibile impostare anche altri campi, passati tramite
+     * il parametro $optionalFields in formato {NOME_CAMPO}=>{valore}. 
      * @param mixed $data Oggetto con i parametri
+     * @param array $optionalFields Campi aggiuntivi (nel formato FIELD=>valore)
      * @return type Array con i risultati, oppure false in caso di errore
      */
-    public function listsSubscribe($data) {
+    public function listsSubscribe($data, array $optionalFields = null) {
+        $vars = array('FNAME' => $data->fname, 'LNAME' => $data->lname);
+        if (is_array($optionalFields) && count($optionalFields) > 0)
+            $vars = array_merge($vars, $optionalFields);
         return $this->call('lists/subscribe', array(
                     'id' => $this->list_id,
                     'email' => array(
                         'email' => $data->email,
                     ),
                     'double_optin' => $data->double_optin,
-                    'merge_vars' => array(
-                        'FNAME' => $data->fname,
-                        'LNAME' => $data->lname,
-                    ),
+                    'merge_vars' => $vars,
         ));
     }
 
